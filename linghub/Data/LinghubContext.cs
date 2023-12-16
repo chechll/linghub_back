@@ -79,10 +79,7 @@ public partial class LinghubContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("ans3");
-            entity.Property(e => e.Text1)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("text");
+            entity.Property(e => e.Text1).HasColumnName("text");
             entity.Property(e => e.TextName)
                 .HasMaxLength(15)
                 .IsUnicode(false)
@@ -144,6 +141,7 @@ public partial class LinghubContext : DbContext
             entity.Property(e => e.IdUser)
                 .ValueGeneratedNever()
                 .HasColumnName("id_user");
+            entity.Property(e => e.Admin).HasColumnName("admin");
             entity.Property(e => e.Email)
                 .HasMaxLength(15)
                 .IsUnicode(false)
@@ -156,6 +154,10 @@ public partial class LinghubContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("surname");
+            entity.Property(e => e.UserPassword)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("user_password");
         });
 
         modelBuilder.Entity<Word>(entity =>
@@ -167,18 +169,6 @@ public partial class LinghubContext : DbContext
             entity.Property(e => e.IdWord)
                 .ValueGeneratedNever()
                 .HasColumnName("id_word");
-            entity.Property(e => e.Ans1)
-                .HasMaxLength(15)
-                .IsUnicode(false)
-                .HasColumnName("ans1");
-            entity.Property(e => e.Ans2)
-                .HasMaxLength(15)
-                .IsUnicode(false)
-                .HasColumnName("ans2");
-            entity.Property(e => e.Ans3)
-                .HasMaxLength(15)
-                .IsUnicode(false)
-                .HasColumnName("ans3");
             entity.Property(e => e.Ensent)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -187,14 +177,14 @@ public partial class LinghubContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("enword");
-            entity.Property(e => e.Rusent)
+            entity.Property(e => e.Uasent)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("rusent");
-            entity.Property(e => e.Ruword)
+                .HasColumnName("uasent");
+            entity.Property(e => e.Uaword)
                 .HasMaxLength(15)
                 .IsUnicode(false)
-                .HasColumnName("ruword");
+                .HasColumnName("uaword");
         });
 
         OnModelCreatingPartial(modelBuilder);

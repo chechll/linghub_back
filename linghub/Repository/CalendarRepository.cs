@@ -1,37 +1,56 @@
-﻿using linghub.Interfaces;
+﻿using linghub.Data;
+using linghub.Interfaces;
 
 namespace linghub.Repository
 {
     public class CalendarRepository : ICalendarRepository
     {
+        private readonly LinghubContext _context;
+
+        public CalendarRepository(LinghubContext context)
+        {
+            _context = context;
+        }
+
         public bool CreateCalendar(Calendar calendar)
         {
-            throw new NotImplementedException();
+            _context.Add(calendar);
+
+            return Save();
         }
 
         public bool DeleteCalendar(Calendar calendar)
         {
-            throw new NotImplementedException();
+            _context.Remove(calendar);
+
+            return Save();
         }
 
         public Calendar GetCalendar(int id)
+        {
+            return _context.Calendars.Where(p => p.Id == id).FirstOrDefault();
+        }
+
+        public int GetVisitsStreak(int id)
         {
             throw new NotImplementedException();
         }
 
         public bool isCalendarExist(int id)
         {
-            throw new NotImplementedException();
+            return _context.Calendars.Any(p => p.Id == id);
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateCalendar(Calendar calendar)
         {
-            throw new NotImplementedException();
+            _context.Update(calendar);
+            return Save();
         }
     }
 }

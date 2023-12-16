@@ -1,37 +1,51 @@
-﻿using linghub.Interfaces;
+﻿using linghub.Data;
+using linghub.Interfaces;
 
 namespace linghub.Repository
 {
     public class WordRepository : IWordRepository
     {
+        private readonly LinghubContext _context;
+
+        public WordRepository(LinghubContext context)
+        {
+            _context = context;
+        }
+
         public bool CreateWord(Word word)
         {
-            throw new NotImplementedException();
+            _context.Add(word);
+
+            return Save();
         }
 
         public bool DeleteWord(Word word)
         {
-            throw new NotImplementedException();
+            _context.Remove(word);
+
+            return Save();
         }
 
         public Word GetWord(int id)
         {
-            throw new NotImplementedException();
+            return _context.Words.Where(p => p.IdWord == id).FirstOrDefault();
         }
 
         public bool isWordExist(int id)
         {
-            throw new NotImplementedException();
+            return _context.Words.Any(p => p.IdWord == id);
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateWord(Word word)
         {
-            throw new NotImplementedException();
+            _context.Update(word);
+            return Save();
         }
     }
 }

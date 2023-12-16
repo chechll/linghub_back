@@ -1,8 +1,8 @@
 global using linghub.Models;
+global using Microsoft.EntityFrameworkCore;
 using linghub.Data;
 using linghub.Interfaces;
 using linghub.Repository;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);

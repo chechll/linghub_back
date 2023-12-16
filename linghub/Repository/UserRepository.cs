@@ -1,37 +1,62 @@
-﻿using linghub.Interfaces;
+﻿using linghub.Data;
+using linghub.Interfaces;
 
 namespace linghub.Repository
 {
     public class UserRepository : IUserRepository
     {
+        private readonly LinghubContext _context;
+
+        public UserRepository(LinghubContext context)
+        {
+            _context = context;
+        }
+
         public bool CreateUser(User user)
         {
-            throw new NotImplementedException();
+            _context.Add(user);
+
+            return Save();
         }
 
         public bool DeleteUser(User user)
         {
-            throw new NotImplementedException();
+            _context.Remove(user);
+
+            return Save();
         }
 
         public User GetUser(int id)
         {
-            throw new NotImplementedException();
+            return _context.Users.Where(p => p.IdUser == id).FirstOrDefault();
+        }
+
+        public bool IsAdmin(int Id)
+        {
+            if(_context.Users.Where(p => p.IdUser == Id).Select(c => c.Admin).FirstOrDefault() == 1) return true;
+            return false;
         }
 
         public bool isUserExist(int id)
         {
-            throw new NotImplementedException();
+            return _context.Users.Any(p => p.IdUser == id);
+        }
+
+        public bool logIn(int Id, string password)
+        {
+            return _context.Users.Any(p => p.IdUser == Id && p.UserPassword == password);
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateUser(User user)
         {
-            throw new NotImplementedException();
+            _context.Update(user);
+            return Save();
         }
     }
 }

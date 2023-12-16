@@ -1,37 +1,51 @@
-﻿using linghub.Interfaces;
+﻿using linghub.Data;
+using linghub.Interfaces;
 
 namespace linghub.Repository
 {
     public class UtextRepository : IU_textRepository
     {
+        private readonly LinghubContext _context;
+
+        public UtextRepository(LinghubContext context)
+        {
+            _context = context;
+        }
+
         public bool CreateUText(UText uText)
         {
-            throw new NotImplementedException();
+            _context.Add(uText);
+
+            return Save();
         }
 
         public bool DeleteUText(UText uText)
         {
-            throw new NotImplementedException();
+            _context.Remove(uText);
+
+            return Save();
         }
 
         public UText GetUText(int id)
         {
-            throw new NotImplementedException();
+            return _context.UTexts.Where(p => p.Id == id).FirstOrDefault();
         }
 
         public bool isUtextExist(int id)
         {
-            throw new NotImplementedException();
+            return _context.UTexts.Any(p => p.Id == id);
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateUText(UText uText)
         {
-            throw new NotImplementedException();
+            _context.Update(uText);
+            return Save();
         }
     }
 }

@@ -13,6 +13,10 @@ public partial class User
 
     public string Surname { get; set; } = null!;
 
+    public int Admin { get; set; }
+
+    public string UserPassword { get; set; } = null!;
+
     public virtual Calendar? Calendar { get; set; }
 
     public virtual ICollection<UText> UTexts { get; set; } = new List<UText>();

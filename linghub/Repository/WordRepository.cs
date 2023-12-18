@@ -31,6 +31,11 @@ namespace linghub.Repository
             return _context.Words.Where(p => p.IdWord == id).FirstOrDefault();
         }
 
+        public ICollection<Word> GetWords()
+        {
+            return _context.Words.OrderBy(p => p.IdWord).ToList();
+        }
+
         public bool isWordExist(int id)
         {
             return _context.Words.Any(p => p.IdWord == id);

@@ -26,6 +26,11 @@ namespace linghub.Repository
             return Save();
         }
 
+        public ICollection<Text> GetAllText()
+        {
+            return _context.Texts.OrderBy(p => p.IdText).ToList();
+        }
+
         public Text GetText(int id)
         {
             return _context.Texts.Where(p => p.IdText == id).FirstOrDefault();

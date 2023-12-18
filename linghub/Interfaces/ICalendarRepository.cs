@@ -3,6 +3,7 @@
     public interface ICalendarRepository
     {
         Calendar GetCalendar(int id);
+        ICollection<Calendar> GetCalendars();
         int GetVisitsStreak(int id);
         bool isCalendarExist(int id);
         bool Save();

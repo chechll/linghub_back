@@ -3,6 +3,7 @@
     public interface ITextRepository
     {
         Text GetText(int id);
+        ICollection<Text> GetAllText();
         bool isTextExist(int id);
         bool Save();
         bool CreateText(Text text);

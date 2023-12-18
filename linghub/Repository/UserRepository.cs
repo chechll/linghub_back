@@ -31,6 +31,11 @@ namespace linghub.Repository
             return _context.Users.Where(p => p.IdUser == id).FirstOrDefault();
         }
 
+        public ICollection<User> GetUsers()
+        {
+            return _context.Users.OrderBy(p => p.IdUser).ToList();
+        }
+
         public bool IsAdmin(int Id)
         {
             if(_context.Users.Where(p => p.IdUser == Id).Select(c => c.Admin).FirstOrDefault() == 1) return true;

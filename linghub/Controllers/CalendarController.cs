@@ -38,5 +38,36 @@ namespace linghub.Controllers
 
             return Ok(calendar);
         }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCalendar([FromBody] CalendarDto calendarCreate)
+        {
+            if (calendarCreate == null)
+                return BadRequest();
+
+            var calendar = _calendarRepository.GetCalendars().Where(c => c.Id == calendarCreate.Id).FirstOrDefault();
+
+            if (calendar != null)
+            {
+                ModelState.AddModelError("", "word already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var calendarMap = _mapper.Map<Calendar>(calendarCreate);
+
+            if (!_calendarRepository.CreateCalendar(calendarMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
+        }
     }
 }

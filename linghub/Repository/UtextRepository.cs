@@ -31,6 +31,11 @@ namespace linghub.Repository
             return _context.UTexts.Where(p => p.Id == id).FirstOrDefault();
         }
 
+        public ICollection<UText> GetUTexts()
+        {
+            return _context.UTexts.OrderBy(p => p.Id).ToList();
+        }
+
         public bool isUtextExist(int id)
         {
             return _context.UTexts.Any(p => p.Id == id);

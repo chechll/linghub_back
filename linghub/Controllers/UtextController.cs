@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using linghub.Dto;
 using linghub.Interfaces;
+using linghub.Models;
 using linghub.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,36 @@ namespace linghub.Controllers
             _mapper = mapper;
         }
 
-        
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateUText([FromBody] UtextDto utextCreate)
+        {
+            if (utextCreate == null)
+                return BadRequest();
+
+            var utext = _u_textRepository.GetUTexts().Where(c => c.Id == utextCreate.Id).FirstOrDefault();
+
+            if (utext != null)
+            {
+                ModelState.AddModelError("", "word already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var utextMap = _mapper.Map<UText>(utextCreate);
+
+            if (!_u_textRepository.CreateUText(utextMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
+        }
+
     }
 }

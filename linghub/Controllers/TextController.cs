@@ -38,5 +38,36 @@ namespace linghub.Controllers
 
             return Ok(text);
         }
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateText([FromBody] TextDto textCreate)
+        {
+            if (textCreate == null)
+                return BadRequest();
+
+            var text = _textRepository.GetAllText().Where(c => c.IdText == textCreate.IdText).FirstOrDefault();
+
+            if (text != null)
+            {
+                ModelState.AddModelError("", "word already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var textMap = _mapper.Map<Text>(textCreate);
+
+            if (!_textRepository.CreateText(textMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+
+        }
     }
 }

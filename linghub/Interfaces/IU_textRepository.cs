@@ -3,6 +3,7 @@
     public interface IU_textRepository
     {
         UText GetUText(int id);
+        ICollection<UText> GetUTexts();
         bool isUtextExist(int id);
         bool Save();
         bool CreateUText(UText uText);

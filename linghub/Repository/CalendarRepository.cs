@@ -31,6 +31,11 @@ namespace linghub.Repository
             return _context.Calendars.Where(p => p.Id == id).FirstOrDefault();
         }
 
+        public ICollection<Calendar> GetCalendars()
+        {
+            return _context.Calendars.OrderBy(p => p.Id).ToList();
+        }
+
         public int GetVisitsStreak(int id)
         {
             throw new NotImplementedException();

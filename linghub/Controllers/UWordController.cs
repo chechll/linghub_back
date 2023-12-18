@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using linghub.Dto;
 using linghub.Interfaces;
+using linghub.Models;
 using linghub.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,6 +54,36 @@ namespace linghub.Controllers
 
             return Ok("Successfully created");
 
+        }
+
+        [HttpPut("{calendarId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateUword(int uwordId,
+            [FromBody] UwordDto updatedUword)
+        {
+            if (updatedUword == null)
+                return BadRequest(ModelState);
+
+            if (uwordId != updatedUword.Id)
+                return BadRequest(ModelState);
+
+            if (!_u_wordRepository.isUwordExist(uwordId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var uwordMap = _mapper.Map<UWord>(updatedUword);
+
+            if (!_u_wordRepository.UpdateUword(uwordMap))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
         }
     }
 

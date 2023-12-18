@@ -55,5 +55,36 @@ namespace linghub.Controllers
 
         }
 
+        [HttpPut("{uTextId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateUText(int uTextId,
+            [FromBody] UtextDto updatedUText)
+        {
+            if (updatedUword == null)
+                return BadRequest(ModelState);
+
+            if (uTextId != updatedUword.Id)
+                return BadRequest(ModelState);
+
+            if (!_u_textRepository.isUtextExist(uTextId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var uTextMap = _mapper.Map<UText>(updatedUText);
+
+            if (!_u_textRepository.UpdateUText(uTextMap))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
     }
+
+}
 }

@@ -69,5 +69,35 @@ namespace linghub.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{textId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateText(int textId,
+            [FromBody] TextDto updatedText)
+        {
+            if (updatedText == null)
+                return BadRequest(ModelState);
+
+            if (textId != updatedText.IdText)
+                return BadRequest(ModelState);
+
+            if (!_textRepository.isTextExist(textId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var textMap = _mapper.Map<Text>(updatedText);
+
+            if (!_textRepository.UpdateText(textMap))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
     }
 }

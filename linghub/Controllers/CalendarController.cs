@@ -69,5 +69,35 @@ namespace linghub.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{calendarId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCalendar(int calendarId,
+            [FromBody] CalendarDto updatedCalendar)
+        {
+            if (updatedCalendar == null)
+                return BadRequest(ModelState);
+
+            if (calendarId != updatedCalendar.Id)
+                return BadRequest(ModelState);
+
+            if (!_calendarRepository.isCalendarExist(calendarId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var calendarMap = _mapper.Map<Calendar>(updatedCalendar);
+
+            if (!_calendarRepository.UpdateCalendar(calendarMap))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
     }
 }

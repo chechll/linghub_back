@@ -70,5 +70,35 @@ namespace linghub.Controllers
             return Ok("Successfully created");
 
         }
+
+        [HttpPut("{wordId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateWord(int wordId,
+            [FromBody] WordDto updatedWord)
+        {
+            if (updatedWord == null)
+                return BadRequest(ModelState);
+
+            if (wordId != updatedWord.IdWord)
+                return BadRequest(ModelState);
+
+            if (!_wordRepository.isWordExist(wordId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var wordMap = _mapper.Map<Word>(updatedWord);
+
+            if (!_wordRepository.UpdateWord(wordMap))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully updated");
+        }
     }
 }

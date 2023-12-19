@@ -40,16 +40,14 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("calendar");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Datum)
                 .HasColumnType("date")
                 .HasColumnName("datum");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
 
-            entity.HasOne(d => d.IdNavigation).WithOne(p => p.Calendar)
-                .HasForeignKey<Calendar>(d => d.Id)
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.Calendars)
+                .HasForeignKey(d => d.IdUser)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("R_4");
         });
@@ -60,9 +58,7 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("TEXT");
 
-            entity.Property(e => e.IdText)
-                .ValueGeneratedNever()
-                .HasColumnName("id_text");
+            entity.Property(e => e.IdText).HasColumnName("id_text");
             entity.Property(e => e.Ans)
                 .HasMaxLength(15)
                 .IsUnicode(false)
@@ -92,9 +88,7 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("U_text");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.IdText).HasColumnName("id_text");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
 
@@ -115,9 +109,7 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("U_word");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.IdWord).HasColumnName("id_word");
 
@@ -138,12 +130,10 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("USER");
 
-            entity.Property(e => e.IdUser)
-                .ValueGeneratedNever()
-                .HasColumnName("id_user");
+            entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.Admin).HasColumnName("admin");
             entity.Property(e => e.Email)
-                .HasMaxLength(15)
+                .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("email");
             entity.Property(e => e.Name)
@@ -162,13 +152,11 @@ public partial class LinghubContext : DbContext
 
         modelBuilder.Entity<Word>(entity =>
         {
-            entity.HasKey(e => e.IdWord).HasName("XPKword");
+            entity.HasKey(e => e.IdWord).HasName("XPKWord");
 
             entity.ToTable("Word");
 
-            entity.Property(e => e.IdWord)
-                .ValueGeneratedNever()
-                .HasColumnName("id_word");
+            entity.Property(e => e.IdWord).HasColumnName("id_word");
             entity.Property(e => e.Ensent)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -186,6 +174,7 @@ public partial class LinghubContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("uaword");
         });
+        modelBuilder.HasSequence("WordSequence");
 
         OnModelCreatingPartial(modelBuilder);
     }

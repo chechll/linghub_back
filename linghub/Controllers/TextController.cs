@@ -99,5 +99,31 @@ namespace linghub.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{textId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteText(int textId)
+        {
+            if (!_textRepository.isTextExist(textId))
+            {
+                return NotFound();
+            }
+
+            var textToDelete = _textRepository.GetText(textId);
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_textRepository.DeleteText(textToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Deleted successfully");
+        }
     }
 }

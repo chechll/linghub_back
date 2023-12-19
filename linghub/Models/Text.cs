@@ -5,8 +5,6 @@ namespace linghub.Models;
 
 public partial class Text
 {
-    public int IdText { get; set; }
-
     public string Text1 { get; set; } = null!;
 
     public string TextName { get; set; } = null!;
@@ -18,6 +16,8 @@ public partial class Text
     public string Ans2 { get; set; } = null!;
 
     public string Ans3 { get; set; } = null!;
+
+    public int IdText { get; set; }
 
     public virtual ICollection<UText> UTexts { get; set; } = new List<UText>();
 }

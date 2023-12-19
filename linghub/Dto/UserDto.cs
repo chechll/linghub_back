@@ -2,7 +2,7 @@
 {
     public class UserDto
     {
-        public int IdUser { get; set; }
+        
 
         public string Email { get; set; } = null!;
 
@@ -13,5 +13,7 @@
         public int Admin { get; set; }
 
         public string UserPassword { get; set; } = null!;
+
+        public int IdUser { get; set; }
     }
 }

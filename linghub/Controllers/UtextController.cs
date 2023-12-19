@@ -62,10 +62,10 @@ namespace linghub.Controllers
         public IActionResult UpdateUText(int uTextId,
             [FromBody] UtextDto updatedUText)
         {
-            if (updatedUword == null)
+            if (updatedUText == null)
                 return BadRequest(ModelState);
 
-            if (uTextId != updatedUword.Id)
+            if (uTextId != updatedUText.Id)
                 return BadRequest(ModelState);
 
             if (!_u_textRepository.isUtextExist(uTextId))
@@ -84,7 +84,33 @@ namespace linghub.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{utextId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUText(int utextId)
+        {
+            if (!_u_textRepository.isUtextExist(utextId))
+            {
+                return NotFound();
+            }
+
+            var utextToDelete = _u_textRepository.GetUText(utextId);
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_u_textRepository.DeleteUText(utextToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Deleted successfully");
+        }
     }
 
 }
-}
+

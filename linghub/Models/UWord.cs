@@ -5,11 +5,11 @@ namespace linghub.Models;
 
 public partial class UWord
 {
-    public int Id { get; set; }
-
     public int IdUser { get; set; }
 
     public int IdWord { get; set; }
+
+    public int Id { get; set; }
 
     public virtual User IdUserNavigation { get; set; } = null!;
 

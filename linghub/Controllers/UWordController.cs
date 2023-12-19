@@ -85,6 +85,32 @@ namespace linghub.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{uwordId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUword(int uwordId)
+        {
+            if (!_u_wordRepository.isUwordExist(uwordId))
+            {
+                return NotFound();
+            }
+
+            var uwordToDelete = _u_wordRepository.GetUWord(uwordId);
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_u_wordRepository.DeleteUword(uwordToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Deleted successfully");
+        }
     }
 
 }

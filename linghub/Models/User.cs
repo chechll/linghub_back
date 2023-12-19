@@ -5,8 +5,6 @@ namespace linghub.Models;
 
 public partial class User
 {
-    public int IdUser { get; set; }
-
     public string Email { get; set; } = null!;
 
     public string Name { get; set; } = null!;
@@ -17,7 +15,9 @@ public partial class User
 
     public string UserPassword { get; set; } = null!;
 
-    public virtual Calendar? Calendar { get; set; }
+    public int IdUser { get; set; }
+
+    public virtual ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
 
     public virtual ICollection<UText> UTexts { get; set; } = new List<UText>();
 

@@ -98,5 +98,31 @@ namespace linghub.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteUser(int userId)
+        {
+            if (!_userRepository.isUserExist(userId))
+            {
+                return NotFound();
+            }
+
+            var userToDelete = _userRepository.GetUser(userId);
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userRepository.DeleteUser(userToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Deleted successfully");
+        }
     }
 }

@@ -100,5 +100,31 @@ namespace linghub.Controllers
 
             return Ok("Successfully updated");
         }
+
+        [HttpDelete("{wordId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteWord(int wordId)
+        {
+            if (!_wordRepository.isWordExist(wordId))
+            {
+                return NotFound();
+            }
+
+            var wordToDelete = _wordRepository.GetWord(wordId);
+
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_wordRepository.DeleteWord(wordToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong ");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Deleted successfully");
+        }
     }
 }

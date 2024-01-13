@@ -18,6 +18,8 @@ public partial class LinghubContext : DbContext
 
     public virtual DbSet<Calendar> Calendars { get; set; }
 
+    public virtual DbSet<Error> Errors { get; set; }
+
     public virtual DbSet<Text> Texts { get; set; }
 
     public virtual DbSet<UText> UTexts { get; set; }
@@ -52,6 +54,20 @@ public partial class LinghubContext : DbContext
                 .HasConstraintName("R_4");
         });
 
+        modelBuilder.Entity<Error>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("XPKerror");
+
+            entity.ToTable("Error");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Email)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("email");
+        });
+
         modelBuilder.Entity<Text>(entity =>
         {
             entity.HasKey(e => e.IdText).HasName("XPKText");
@@ -75,6 +91,9 @@ public partial class LinghubContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("ans3");
+            entity.Property(e => e.Question)
+                .HasMaxLength(30)
+                .IsUnicode(false);
             entity.Property(e => e.Text1).HasColumnName("text");
             entity.Property(e => e.TextName)
                 .HasMaxLength(15)

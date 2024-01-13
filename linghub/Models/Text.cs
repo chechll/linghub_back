@@ -19,5 +19,9 @@ public partial class Text
 
     public int IdText { get; set; }
 
+    public string Question { get; set; } = null!;
+
+    public int IdAns { get; set; }
+
     public virtual ICollection<UText> UTexts { get; set; } = new List<UText>();
 }

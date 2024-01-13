@@ -5,7 +5,7 @@
         User GetUser(int id);
         ICollection<User> GetUsers();
         bool isUserExist(int id);
-        bool logIn(int Id, string password);
+        int GetId(string email, string password);
         bool IsAdmin(int Id);
         bool Save();
         bool CreateUser(User user);

@@ -15,5 +15,9 @@
         public string Ans2 { get; set; } = null!;
 
         public string Ans3 { get; set; } = null!;
+
+        public string Question { get; set; } = null!;
+
+        public int IdAns { get; set; }
     }
 }

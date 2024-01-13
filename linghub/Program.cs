@@ -19,6 +19,7 @@ builder.Services.AddScoped<ITextRepository, TextRepository>();
 builder.Services.AddScoped<ICalendarRepository, CalendarRepository>();
 builder.Services.AddScoped<IU_textRepository, UtextRepository>();
 builder.Services.AddScoped<IU_wordRepository, U_wordRepository>();
+builder.Services.AddScoped<IErrorRepository, ErrorRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -29,7 +30,8 @@ builder.Services.AddDbContext<LinghubContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors(policy => policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod());
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

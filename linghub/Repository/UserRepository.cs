@@ -47,9 +47,14 @@ namespace linghub.Repository
             return _context.Users.Any(p => p.IdUser == id);
         }
 
-        public bool logIn(int Id, string password)
+        public int GetId(string email, string password)
         {
-            return _context.Users.Any(p => p.IdUser == Id && p.UserPassword == password);
+            int userId = _context.Users
+            .Where(p => p.Email == email && p.UserPassword == password)
+            .Select(p => p.IdUser)
+            .FirstOrDefault();
+
+            return userId;
         }
 
         public bool Save()

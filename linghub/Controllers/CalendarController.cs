@@ -23,42 +23,44 @@ namespace linghub.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("id")]
+        [HttpGet("Appointments")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Calendar>))]
         [ProducesResponseType(400)]
-        public IActionResult GetCalendar(int id)
+        public IActionResult GetCalendar(int idUser)
         {
-            if (!_calendarRepository.isCalendarExist(id))
-                return NotFound();
-
-            var calendar = _mapper.Map<CalendarDto>(_calendarRepository.GetCalendar(id));
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return Ok(calendar);
+            try
+            {
+                
+                if (idUser <= 0)
+                    return BadRequest();
+                
+                var appointmentsCountByDay = _calendarRepository.GetAppointmentsCountByDay(idUser);
+                
+                return Ok(new { AppointmentsCountByDay = appointmentsCountByDay });
+            } catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
         }
 
-        [HttpPost]
+        [HttpPost("AddDate")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCalendar([FromBody] CalendarDto calendarCreate)
+        public IActionResult CreateCalendar([FromQuery] int idUser)
         {
-            if (calendarCreate == null)
+            if (idUser <= 0)
                 return BadRequest();
 
-            var calendar = _calendarRepository.GetCalendars().Where(c => c.Id == calendarCreate.Id).FirstOrDefault();
-
-            if (calendar != null)
-            {
-                ModelState.AddModelError("", "word already exists");
-                return StatusCode(422, ModelState);
-            }
+            var calendar = new Calendar {Datum =  DateTime.Today, IdUser = idUser };
+                
+                
+            if(_calendarRepository.GetCalendars().Any(c => c.IdUser == calendar.IdUser && c.Datum == calendar.Datum))
+                return Ok();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var calendarMap = _mapper.Map<Calendar>(calendarCreate);
+            var calendarMap = _mapper.Map<Calendar>(calendar);
 
             if (!_calendarRepository.CreateCalendar(calendarMap))
             {

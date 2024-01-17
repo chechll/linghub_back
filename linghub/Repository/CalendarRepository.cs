@@ -26,6 +26,33 @@ namespace linghub.Repository
             return Save();
         }
 
+        public List<int> GetAppointmentsCountByDay(int idUser)
+        {
+
+            try 
+            {
+                    var today = DateTime.Today;
+                    var startOfWeek = today.AddDays(1 - (int)today.DayOfWeek);
+                    var endOfWeek = startOfWeek.AddDays(6);
+                   
+
+                var appointmentsCountByDay = _context.Calendars
+                 .Where(c => c.IdUser == idUser && c.Datum >= startOfWeek && c.Datum <= endOfWeek)
+                 .AsEnumerable()
+                 .GroupBy(c => c.Datum.DayOfWeek)
+                 .OrderBy(g => g.Key)
+                 .Select(g => g.Count())
+                 .ToList();
+
+                return appointmentsCountByDay;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+        }
+
         public Calendar GetCalendar(int id)
         {
             return _context.Calendars.Where(p => p.Id == id).FirstOrDefault();

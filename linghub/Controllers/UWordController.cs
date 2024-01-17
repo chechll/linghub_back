@@ -24,8 +24,7 @@ namespace linghub.Controllers
             _mapper = mapper;
         }
 
-
-        [HttpPost]
+        [HttpPost("AddSolvedWord")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateUWord([FromBody] UwordDto uwordCreate)

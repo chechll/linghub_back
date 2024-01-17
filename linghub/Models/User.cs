@@ -13,9 +13,11 @@ public partial class User
 
     public int Admin { get; set; }
 
-    public string UserPassword { get; set; } = null!;
+    public string? UserPassword { get; set; }
 
     public int IdUser { get; set; }
+
+    public byte[]? Photo { get; set; }
 
     public virtual ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
 

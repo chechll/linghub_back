@@ -43,9 +43,17 @@ namespace linghub.Repository
 
         public bool Save()
         {
-            var saved = _context.SaveChanges();
-            return saved > 0 ? true : false;
-        }
+            try
+            {
+                var saved = _context.SaveChanges();
+                return saved > 0 ? true : false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+}
 
         public bool UpdateUword(UWord uWord)
         {

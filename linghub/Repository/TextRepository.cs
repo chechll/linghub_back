@@ -1,5 +1,6 @@
 ﻿using linghub.Data;
 using linghub.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace linghub.Repository
 {
@@ -34,6 +35,26 @@ namespace linghub.Repository
         public Text GetText(int id)
         {
             return _context.Texts.Where(p => p.IdText == id).FirstOrDefault();
+        }
+
+        public int GetSolvedTextCount(int idUser)
+        {
+            return _context.UTexts.Count(uText => uText.IdUser == idUser);
+        }
+
+        public int GetTextCount()
+        {
+            return _context.Texts.Count();
+        }
+
+        public int GetUnsolvedTextId(int idUser)
+        {
+            var unsolvedTextId = _context.Texts
+            .Where(text => !_context.UTexts.Any(uText => uText.IdText == text.IdText && uText.IdUser == idUser))
+            .Select(text => text.IdText)
+            .FirstOrDefault();
+
+            return unsolvedTextId;
         }
 
         public bool isTextExist(int id)

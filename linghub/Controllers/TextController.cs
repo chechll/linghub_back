@@ -12,22 +12,61 @@ namespace linghub.Controllers
     {
         private readonly ITextRepository _textRepository;
         private readonly IU_textRepository _u_textRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
         public TextController(ITextRepository textRepository,
             IU_textRepository u_textRepository,            
-            IMapper mapper)
+            IMapper mapper,
+            IUserRepository userRepository)
         {
             _textRepository = textRepository;
             _u_textRepository = u_textRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
-        [HttpGet("id")]
+        public class TextsAmountResponse
+        {
+            public int SolvedTexts { get; set; }
+            public int AllTexts { get; set; }
+        }
+
+        [HttpGet("GetCount")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Word>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetAmount(int idUser)
+        {
+            if (!_userRepository.isUserExist(idUser))
+                return BadRequest();
+
+            int solvedTexts = _textRepository.GetSolvedTextCount(idUser);
+
+            int allTexts = _textRepository.GetTextCount();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = new TextsAmountResponse
+            {
+                SolvedTexts = solvedTexts,
+                AllTexts = allTexts
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetText")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Text>))]
         [ProducesResponseType(400)]
-        public IActionResult GetText(int id)
+        public IActionResult GetText(int idUser)
         {
+
+            if (!_userRepository.isUserExist(idUser))
+                return BadRequest();
+
+            var id = _textRepository.GetUnsolvedTextId(idUser);
+
             if (!_textRepository.isTextExist(id))
                 return NotFound();
 
@@ -39,7 +78,7 @@ namespace linghub.Controllers
             return Ok(text);
         }
 
-        [HttpPost]
+        [HttpPost("CreateText")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateText([FromBody] TextDto textCreate)
@@ -70,7 +109,7 @@ namespace linghub.Controllers
 
         }
 
-        [HttpPut("{textId}")]
+        [HttpPut("UpdateText")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -100,7 +139,7 @@ namespace linghub.Controllers
             return Ok("Successfully updated");
         }
 
-        [HttpDelete("{textId}")]
+        [HttpDelete("DeleteText")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]

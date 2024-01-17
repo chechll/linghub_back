@@ -15,5 +15,7 @@
         public string UserPassword { get; set; } = null!;
 
         public int IdUser { get; set; }
+
+        public byte[]? Photo { get; set; }
     }
 }

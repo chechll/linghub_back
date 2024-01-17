@@ -19,6 +19,8 @@ namespace linghub.Helper
             CreateMap<UtextDto, UText>();
             CreateMap<UWord, UwordDto>();
             CreateMap<UwordDto, UWord>();
+            CreateMap<ErrorDto, Error>();
+            CreateMap<Error, ErrorDto>();
         }
     }
 }

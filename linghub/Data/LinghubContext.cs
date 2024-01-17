@@ -149,6 +149,8 @@ public partial class LinghubContext : DbContext
 
             entity.ToTable("USER");
 
+            entity.HasIndex(e => e.Email, "UQ_User_Email").IsUnique();
+
             entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.Admin).HasColumnName("admin");
             entity.Property(e => e.Email)
@@ -159,14 +161,14 @@ public partial class LinghubContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.Photo)
+                .HasColumnType("image")
+                .HasColumnName("photo");
             entity.Property(e => e.Surname)
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("surname");
-            entity.Property(e => e.UserPassword)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("user_password");
+            entity.Property(e => e.UserPassword).HasColumnName("user_password");
         });
 
         modelBuilder.Entity<Word>(entity =>

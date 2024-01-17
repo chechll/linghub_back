@@ -9,5 +9,8 @@
         bool CreateText(Text text);
         bool DeleteText(Text text);
         bool UpdateText(Text text);
+        int GetUnsolvedTextId(int idUser);
+        int GetSolvedTextCount(int idUser);
+        int GetTextCount();
     }
 }

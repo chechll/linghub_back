@@ -10,5 +10,6 @@
         bool CreateCalendar(Calendar calendar);
         bool DeleteCalendar(Calendar calendar);
         bool UpdateCalendar(Calendar calendar);
+        List<int> GetAppointmentsCountByDay(int idUser);
     }
 }

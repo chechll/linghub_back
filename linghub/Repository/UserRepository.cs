@@ -47,10 +47,10 @@ namespace linghub.Repository
             return _context.Users.Any(p => p.IdUser == id);
         }
 
-        public int GetId(string email, string password)
+        public int GetId(string email)
         {
             int userId = _context.Users
-            .Where(p => p.Email == email && p.UserPassword == password)
+            .Where(p => p.Email == email)
             .Select(p => p.IdUser)
             .FirstOrDefault();
 
@@ -65,7 +65,17 @@ namespace linghub.Repository
 
         public bool UpdateUser(User user)
         {
-            _context.Update(user);
+            var existingUser = _context.Users.Find(user.IdUser);
+
+            if (existingUser == null)
+            {
+                // Handle the case where the entity is not found.
+                return false;
+            }
+
+            // Update properties of the existing entity.
+            _context.Entry(existingUser).CurrentValues.SetValues(user);
+
             return Save();
         }
     }

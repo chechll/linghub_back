@@ -9,5 +9,8 @@
         bool CreateWord(Word word);
         bool DeleteWord(Word word);
         bool UpdateWord(Word word);
+        int GetUnsolvedWordId(int idUser);
+        int GetSolvedWordCount(int idUser);
+        int GetWordCount();
     }
 }

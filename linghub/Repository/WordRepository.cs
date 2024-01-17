@@ -26,6 +26,26 @@ namespace linghub.Repository
             return Save();
         }
 
+        public int GetSolvedWordCount(int idUser)
+        {
+            return _context.UWords.Count(uWord => uWord.IdUser == idUser);
+        }
+
+        public int GetWordCount()
+        {
+            return _context.Words.Count();
+        }
+
+        public int GetUnsolvedWordId(int idUser)
+        {
+            var unsolvedWordId = _context.Words
+            .Where(word => !_context.UWords.Any(uWord => uWord.IdWord == word.IdWord && uWord.IdUser == idUser))
+            .Select(word => word.IdWord)
+            .FirstOrDefault();
+
+            return unsolvedWordId;
+        }
+
         public Word GetWord(int id)
         {
             return _context.Words.Where(p => p.IdWord == id).FirstOrDefault();

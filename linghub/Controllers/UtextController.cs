@@ -14,17 +14,20 @@ namespace linghub.Controllers
         private readonly ITextRepository _textRepository;
         private readonly IU_textRepository _u_textRepository;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
 
         public UtextController(IU_textRepository u_textRepository,
             ITextRepository textRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IUserRepository userRepository)
         {
             _textRepository = textRepository;
             _u_textRepository = u_textRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
-        [HttpPost]
+        [HttpPost("AddSolvedText")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateUText([FromBody] UtextDto utextCreate)
@@ -32,11 +35,19 @@ namespace linghub.Controllers
             if (utextCreate == null)
                 return BadRequest();
 
-            var utext = _u_textRepository.GetUTexts().Where(c => c.Id == utextCreate.Id).FirstOrDefault();
+            Console.WriteLine("IdUser = " + utextCreate.IdUser);
+
+            //if (_userRepository.isUserExist(utextCreate.IdUser))
+            //{
+            //    ModelState.AddModelError("", "user is not exist");
+            //    return StatusCode(422, ModelState);
+            //}
+
+            var utext = _u_textRepository.GetUTexts().Where(uText => uText.IdUser == utextCreate.IdUser && uText.IdText == utextCreate.IdText).FirstOrDefault();
 
             if (utext != null)
             {
-                ModelState.AddModelError("", "word already exists");
+                ModelState.AddModelError("", "uword already exists");
                 return StatusCode(422, ModelState);
             }
 

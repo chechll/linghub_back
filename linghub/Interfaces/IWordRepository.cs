@@ -3,7 +3,7 @@
     public interface IWordRepository
     {
         Word GetWord(int id);
-        ICollection<Word> GetWords();
+        ICollection<Word> GetAllWords();
         bool isWordExist(int id);
         bool Save();
         bool CreateWord(Word word);

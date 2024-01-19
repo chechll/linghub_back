@@ -9,5 +9,8 @@
         bool CreateUText(UText uText);
         bool DeleteUText(UText uText);
         bool UpdateUText(UText uText);
+        ICollection<UText> GetUTextsToDeleteByUserId(int idUser);
+        ICollection<UText> GetUTextsToDeleteByTextId(int idText);
+        bool DeleteUTexts(List<UText> uTexts);
     }
 }

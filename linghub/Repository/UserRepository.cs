@@ -69,11 +69,9 @@ namespace linghub.Repository
 
             if (existingUser == null)
             {
-                // Handle the case where the entity is not found.
                 return false;
             }
 
-            // Update properties of the existing entity.
             _context.Entry(existingUser).CurrentValues.SetValues(user);
 
             return Save();

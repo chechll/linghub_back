@@ -32,6 +32,23 @@ namespace linghub.Controllers
             public int AllTexts { get; set; }
         }
 
+        [HttpGet("GetAllTexts")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Text>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllTexts()
+        {
+            try
+            {
+                var alltext = _textRepository.GetAllText();
+
+                return Ok(alltext);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
+
         [HttpGet("GetCount")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Word>))]
         [ProducesResponseType(400)]

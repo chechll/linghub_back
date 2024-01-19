@@ -26,6 +26,13 @@ namespace linghub.Repository
             return Save();
         }
 
+        public bool DeleteUTexts(List<UText> uTexts)
+        {
+            _context.RemoveRange(uTexts);
+
+            return Save();
+        }
+
         public UText GetUText(int id)
         {
             return _context.UTexts.Where(p => p.Id == id).FirstOrDefault();
@@ -34,6 +41,16 @@ namespace linghub.Repository
         public ICollection<UText> GetUTexts()
         {
             return _context.UTexts.OrderBy(p => p.Id).ToList();
+        }
+
+        public ICollection<UText> GetUTextsToDeleteByTextId(int idText)
+        {
+            return _context.UTexts.Where(p => p.IdText == idText).ToList();
+        }
+
+        public ICollection<UText> GetUTextsToDeleteByUserId(int idUser)
+        {
+            return _context.UTexts.Where(p => p.IdUser == idUser).ToList();
         }
 
         public bool isUtextExist(int id)

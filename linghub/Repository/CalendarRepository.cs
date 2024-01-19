@@ -26,6 +26,13 @@ namespace linghub.Repository
             return Save();
         }
 
+        public bool DeleteCalendars(List<Calendar> calendars)
+        {
+            _context.RemoveRange(calendars);
+
+            return Save();
+        }
+
         public List<int> GetAppointmentsCountByDay(int idUser)
         {
 
@@ -61,6 +68,11 @@ namespace linghub.Repository
         public ICollection<Calendar> GetCalendars()
         {
             return _context.Calendars.OrderBy(p => p.Id).ToList();
+        }
+
+        public ICollection<Calendar> GetCalendarsToDeleteByUserId(int idUser)
+        {
+            return _context.Calendars.Where(p => p.IdUser == idUser).ToList();
         }
 
         public int GetVisitsStreak(int id)

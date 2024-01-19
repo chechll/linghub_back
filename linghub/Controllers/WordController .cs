@@ -34,6 +34,23 @@ namespace linghub.Controllers
             public int AllWords { get; set; }
         }
 
+        [HttpGet("GetAllWords")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Word>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllWords()
+        {
+            try
+            {
+                var allword = _wordRepository.GetAllWords();
+
+                return Ok(allword);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
+
         [HttpGet("GetCount")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Word>))]
         [ProducesResponseType(400)]

@@ -51,7 +51,7 @@ namespace linghub.Repository
             return _context.Words.Where(p => p.IdWord == id).FirstOrDefault();
         }
 
-        public ICollection<Word> GetWords()
+        public ICollection<Word> GetAllWords()
         {
             return _context.Words.OrderBy(p => p.IdWord).ToList();
         }

@@ -15,45 +15,45 @@ namespace linghub.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICalendarRepository _calendarRepository;
+        private readonly IU_textRepository _u_textRepository;
+        private readonly IU_wordRepository _u_wordRepository;
         private readonly IMapper _mapper;
 
         public UserController(IUserRepository userRepository,
+            ICalendarRepository calendarRepository,
+            IU_textRepository u_textRepository,
+            IU_wordRepository u_wordRepository,
             IMapper mapper)
         {
+            _u_textRepository = u_textRepository;
+            _u_wordRepository = u_wordRepository;
+            _calendarRepository = calendarRepository;
             _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        [HttpGet("AddHash")]
+        public class OperatingData
+        {
+            public int idUser { get; set; }
+            public int isAdmin { get; set; }
+        }
+
+        [HttpGet("GetAllUsers")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
         [ProducesResponseType(400)]
-        public IActionResult AddHash(int id)
+        public IActionResult GetAllErrors()
         {
-            
-            if (!_userRepository.isUserExist(id))
-                return NotFound();
-
-            var user = _mapper.Map<UserDto>(_userRepository.GetUser(id));
-            // var worker = _workerRepository.GetWorker(id);
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(user.UserPassword, 13);
-
-            //var result = BCrypt.Net.BCrypt.EnhancedVerify(user.UserPassword, passwordHash);
-
-            user.UserPassword = passwordHash;
-
-            var userMap = _mapper.Map<User>(user);
-
-            if (!_userRepository.UpdateUser(userMap))
+            try
             {
-                ModelState.AddModelError("", "Something went wrong ");
-                return StatusCode(500, ModelState);
-            }
+                var alluser = _userRepository.GetUsers();
 
-            return Ok("Success");
+                return Ok(alluser);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("LogIn")]
@@ -64,18 +64,19 @@ namespace linghub.Controllers
 
 
             int id = _userRepository.GetId(email);
-            Console.WriteLine("Log1");
             if (!_userRepository.isUserExist(id))
                 return NotFound();
-            Console.WriteLine("Log2");
             var user = _mapper.Map<UserDto>(_userRepository.GetUser(id));
-            // var worker = _workerRepository.GetWorker(id);
-            Console.WriteLine("Log3");
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            Console.WriteLine("Log4");
             if (BCrypt.Net.BCrypt.EnhancedVerify(user_password, user.UserPassword)) {
-                return Ok(user.IdUser);
+                var response = new OperatingData
+                {
+                    idUser = id,
+                    isAdmin = user.Admin
+                };
+
+                return Ok(response);
             } else
             {
                 return BadRequest();
@@ -132,7 +133,15 @@ namespace linghub.Controllers
 
             var userId = _userRepository.GetId(userCreate.Email );
 
-            return Ok(userId);
+            user = _userRepository.GetUser(userId);
+            
+            var response = new OperatingData
+            {
+                idUser = userId,
+                isAdmin = user.Admin
+            };
+
+            return Ok(response);
 
         }
 
@@ -159,18 +168,20 @@ namespace linghub.Controllers
                 ModelState.AddModelError("", "Model state is not valid");
                 return BadRequest(ModelState);
             }
-            Console.WriteLine("5");
             var user = _userRepository.GetUser(updatedUser.IdUser);
 
-            Console.WriteLine("Updated user mail is ",updatedUser.Email);
+            Console.WriteLine("5");
             if (updatedUser.Name != user.Name)
             {
                 user.Name = updatedUser.Name;
                 isUpdateNeeded = true;
             }
 
+            Console.WriteLine("Updated users photo", updatedUser.Photo);
+
             if (updatedUser.Photo != null)
             {
+                Console.WriteLine("need to update photo");
                 user.Photo = updatedUser.Photo;
                 isUpdateNeeded = true;
             }
@@ -180,7 +191,6 @@ namespace linghub.Controllers
                 user.Email = updatedUser.Email;
                 isUpdateNeeded = true;
             }
-            Console.WriteLine("6");
 
             if (updatedUser.Surname != user.Surname)
             {
@@ -188,20 +198,29 @@ namespace linghub.Controllers
                 isUpdateNeeded = true;
             }
 
-            Console.WriteLine("7");
+            Console.WriteLine("updatedUser.Admin is " + updatedUser.Admin);
 
-            Console.WriteLine("User password is " + updatedUser.UserPassword);
-            var changeMail = BCrypt.Net.BCrypt.EnhancedVerify(updatedUser.UserPassword, user.UserPassword);
-            Console.WriteLine("ChangeMail is " + changeMail);
-            if (!changeMail)
+            if (updatedUser.Admin != user.Admin)
             {
-                Console.WriteLine("8");
-                string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(updatedUser.UserPassword, 13);
-                user.UserPassword = passwordHash;
+                Console.WriteLine("updatedUser.Admin is " + updatedUser.Admin);
+                Console.WriteLine("Updating rights");
+                user.Admin = updatedUser.Admin;
                 isUpdateNeeded = true;
             }
 
-            Console.WriteLine("9");
+            if (updatedUser.UserPassword != user.UserPassword) 
+            {
+                var changeMail = BCrypt.Net.BCrypt.EnhancedVerify(updatedUser.UserPassword, user.UserPassword);
+                if (!changeMail)
+                {
+                    string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(updatedUser.UserPassword, 13);
+                    user.UserPassword = passwordHash;
+                    isUpdateNeeded = true;
+                }
+            }
+
+            Console.WriteLine("Is update needed" + isUpdateNeeded);
+
             if (isUpdateNeeded)
             {
                 var userMap = _mapper.Map<User>(user);
@@ -210,6 +229,7 @@ namespace linghub.Controllers
                     ModelState.AddModelError("", "Something went wrong ");
                     return StatusCode(500, ModelState);
                 }
+                Console.WriteLine("UserAdmin is " + user.Admin);
             }
             return Ok("Successfully updated");
         }
@@ -224,8 +244,49 @@ namespace linghub.Controllers
             {
                 return NotFound();
             }
-
             var userToDelete = _userRepository.GetUser(userId);
+
+            var calendarsToDelete = _calendarRepository.GetCalendarsToDeleteByUserId(userId).ToList();
+
+            if (calendarsToDelete != null && calendarsToDelete.Any())
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!_calendarRepository.DeleteCalendars(calendarsToDelete))
+                {
+                    ModelState.AddModelError("", "Something went wrong");
+                    return StatusCode(500, ModelState);
+                }
+            }
+            var uWordsToDelete = _u_wordRepository.GetUwordsToDeleteByUserId(userId).ToList();
+
+            if (uWordsToDelete != null && uWordsToDelete.Any())
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!_u_wordRepository.DeleteUWords(uWordsToDelete))
+                {
+                    ModelState.AddModelError("", "Something went wrong");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
+            var uTextsToDelete = _u_textRepository.GetUTextsToDeleteByUserId(userId).ToList();
+
+            if (uTextsToDelete != null && uTextsToDelete.Any())
+            {
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!_u_textRepository.DeleteUTexts(uTextsToDelete))
+                {
+                    ModelState.AddModelError("", "Something went wrong");
+                    return StatusCode(500, ModelState);
+                }
+            }
 
 
             if (!ModelState.IsValid)
@@ -237,7 +298,7 @@ namespace linghub.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Deleted successfully");
+            return Ok(0);
         }
     }
 }

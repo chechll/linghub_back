@@ -21,20 +21,21 @@ namespace linghub.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("GetError")]
+        [HttpGet("GetAllErrors")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Word>))]
         [ProducesResponseType(400)]
-        public IActionResult GetError()
+        public IActionResult GetAllErrors()
         {
-            Error error = _errorRepository.GetError().FirstOrDefault();
+            try
+            {
+                var allErrors = _errorRepository.GetError();
 
-            if (!_errorRepository.isErrorExist(error.Id))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return Ok(error);
+                return Ok(allErrors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPost("AddError")]

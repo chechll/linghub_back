@@ -9,5 +9,8 @@
         bool CreateUword(UWord uWord);
         bool DeleteUword(UWord uWord);
         bool UpdateUword(UWord uWord);
+        ICollection<UWord> GetUwordsToDeleteByUserId(int idUser);
+        ICollection<UWord> GetUwordsToDeleteByWordId(int idWord);
+        bool DeleteUWords(List<UWord> uWords);
     }
 }

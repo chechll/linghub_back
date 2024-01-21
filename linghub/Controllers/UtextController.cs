@@ -35,14 +35,6 @@ namespace linghub.Controllers
             if (utextCreate == null)
                 return BadRequest();
 
-            Console.WriteLine("IdUser = " + utextCreate.IdUser);
-
-            //if (_userRepository.isUserExist(utextCreate.IdUser))
-            //{
-            //    ModelState.AddModelError("", "user is not exist");
-            //    return StatusCode(422, ModelState);
-            //}
-
             var utext = _u_textRepository.GetUTexts().Where(uText => uText.IdUser == utextCreate.IdUser && uText.IdText == utextCreate.IdText).FirstOrDefault();
 
             if (utext != null)
@@ -54,6 +46,12 @@ namespace linghub.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!_userRepository.isUserExist(utextCreate.IdUser) || !_textRepository.isTextExist(utextCreate.IdText))
+            {
+                ModelState.AddModelError("", "wrong data");
+                return StatusCode(422, ModelState);
+            }
+
             var utextMap = _mapper.Map<UText>(utextCreate);
 
             if (!_u_textRepository.CreateUText(utextMap))
@@ -64,62 +62,6 @@ namespace linghub.Controllers
 
             return Ok("Successfully created");
 
-        }
-
-        [HttpPut("{uTextId}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public IActionResult UpdateUText(int uTextId,
-            [FromBody] UtextDto updatedUText)
-        {
-            if (updatedUText == null)
-                return BadRequest(ModelState);
-
-            if (uTextId != updatedUText.Id)
-                return BadRequest(ModelState);
-
-            if (!_u_textRepository.isUtextExist(uTextId))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var uTextMap = _mapper.Map<UText>(updatedUText);
-
-            if (!_u_textRepository.UpdateUText(uTextMap))
-            {
-                ModelState.AddModelError("", "Something went wrong ");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Successfully updated");
-        }
-
-        [HttpDelete("{utextId}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public IActionResult DeleteUText(int utextId)
-        {
-            if (!_u_textRepository.isUtextExist(utextId))
-            {
-                return NotFound();
-            }
-
-            var utextToDelete = _u_textRepository.GetUText(utextId);
-
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_u_textRepository.DeleteUText(utextToDelete))
-            {
-                ModelState.AddModelError("", "Something went wrong ");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Deleted successfully");
         }
     }
 

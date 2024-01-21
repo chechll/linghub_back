@@ -16,16 +16,19 @@ namespace linghub.Controllers
         private readonly IU_wordRepository _u_wordRepository;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly ICheckDataRepository _checkDataRepository;
 
         public WordController(IWordRepository wordRepository,
             IU_wordRepository u_wordRepository,
             IMapper mapper,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            ICheckDataRepository checkDataRepository)
         {
             _wordRepository = wordRepository;
             _u_wordRepository = u_wordRepository;
             _mapper = mapper;
             _userRepository = userRepository;
+            _checkDataRepository = checkDataRepository;
         }
 
         public class WordsAmountResponse
@@ -104,7 +107,7 @@ namespace linghub.Controllers
             if (wordCreate == null)
                 return BadRequest();
 
-            var word = _wordRepository.GetWords().Where(c => c.IdWord == wordCreate.IdWord).FirstOrDefault();
+            var word = _wordRepository.GetAllWords().Where(c => c.IdWord == wordCreate.IdWord).FirstOrDefault();
 
             if (word != null)
             {
@@ -114,6 +117,14 @@ namespace linghub.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            string resp = _checkDataRepository.checkWord(wordCreate);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
 
             var wordMap = _mapper.Map<Word>(wordCreate);
 
@@ -131,20 +142,25 @@ namespace linghub.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateWord(int wordId,
-            [FromBody] WordDto updatedWord)
+        public IActionResult UpdateWord(
+            [FromForm] WordDto updatedWord)
         {
             if (updatedWord == null)
                 return BadRequest(ModelState);
 
-            if (wordId != updatedWord.IdWord)
-                return BadRequest(ModelState);
-
-            if (!_wordRepository.isWordExist(wordId))
+            if (!_wordRepository.isWordExist(updatedWord.IdWord))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
+
+            string resp = _checkDataRepository.checkWord(updatedWord);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
 
             var wordMap = _mapper.Map<Word>(updatedWord);
 

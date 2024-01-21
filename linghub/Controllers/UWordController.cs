@@ -13,12 +13,15 @@ namespace linghub.Controllers
     {
         private readonly IWordRepository _wordRepository;
         private readonly IU_wordRepository _u_wordRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
         public UWordController(IU_wordRepository u_wordRepository,
             IWordRepository wordRepository,
+            IUserRepository userRepository,
             IMapper mapper)
         {
+            _userRepository = userRepository;
             _wordRepository = wordRepository;
             _u_wordRepository = u_wordRepository;
             _mapper = mapper;
@@ -36,7 +39,13 @@ namespace linghub.Controllers
 
             if (word != null)
             {
-                ModelState.AddModelError("", "word already exists");
+                ModelState.AddModelError("", "uword already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!_userRepository.isUserExist(uwordCreate.IdUser) || !_wordRepository.isWordExist(uwordCreate.IdWord))
+            {
+                ModelState.AddModelError("", "wrong data");
                 return StatusCode(422, ModelState);
             }
 
@@ -53,62 +62,6 @@ namespace linghub.Controllers
 
             return Ok("Successfully created");
 
-        }
-
-        [HttpPut("{calendarId}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public IActionResult UpdateUword(int uwordId,
-            [FromBody] UwordDto updatedUword)
-        {
-            if (updatedUword == null)
-                return BadRequest(ModelState);
-
-            if (uwordId != updatedUword.Id)
-                return BadRequest(ModelState);
-
-            if (!_u_wordRepository.isUwordExist(uwordId))
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var uwordMap = _mapper.Map<UWord>(updatedUword);
-
-            if (!_u_wordRepository.UpdateUword(uwordMap))
-            {
-                ModelState.AddModelError("", "Something went wrong ");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Successfully updated");
-        }
-
-        [HttpDelete("{uwordId}")]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public IActionResult DeleteUword(int uwordId)
-        {
-            if (!_u_wordRepository.isUwordExist(uwordId))
-            {
-                return NotFound();
-            }
-
-            var uwordToDelete = _u_wordRepository.GetUWord(uwordId);
-
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (!_u_wordRepository.DeleteUword(uwordToDelete))
-            {
-                ModelState.AddModelError("", "Something went wrong ");
-                return StatusCode(500, ModelState);
-            }
-
-            return Ok("Deleted successfully");
         }
     }
 

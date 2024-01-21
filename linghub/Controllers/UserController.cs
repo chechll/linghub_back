@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
 using System;
+using Azure;
 
 namespace linghub.Controllers
 {
@@ -18,14 +19,17 @@ namespace linghub.Controllers
         private readonly ICalendarRepository _calendarRepository;
         private readonly IU_textRepository _u_textRepository;
         private readonly IU_wordRepository _u_wordRepository;
+        private readonly ICheckDataRepository _checkDataRepository;
         private readonly IMapper _mapper;
 
         public UserController(IUserRepository userRepository,
+            ICheckDataRepository checkDataRepository,
             ICalendarRepository calendarRepository,
             IU_textRepository u_textRepository,
             IU_wordRepository u_wordRepository,
             IMapper mapper)
         {
+            _checkDataRepository = checkDataRepository;
             _u_textRepository = u_textRepository;
             _u_wordRepository = u_wordRepository;
             _calendarRepository = calendarRepository;
@@ -69,6 +73,25 @@ namespace linghub.Controllers
             var user = _mapper.Map<UserDto>(_userRepository.GetUser(id));
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!_checkDataRepository.IsValidEmail(email))
+            {
+                ModelState.AddModelError("", "your mail is invalid");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!_checkDataRepository.CheckStringLengs(email, 30))
+            {
+                ModelState.AddModelError("", "your mail length is more then 30");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!_checkDataRepository.CheckStringLengs(user_password, 30))
+            {
+                ModelState.AddModelError("", "your password length is more then 30");
+                return StatusCode(422, ModelState);
+            }
+
             if (BCrypt.Net.BCrypt.EnhancedVerify(user_password, user.UserPassword)) {
                 var response = new OperatingData
                 {
@@ -107,8 +130,6 @@ namespace linghub.Controllers
             if (userCreate == null)
                 return BadRequest();
 
-            //userCreate.Admin = 0;
-
             var user = _userRepository.GetUsers().Where(c => c.Email == userCreate.Email).FirstOrDefault();
 
             if (user != null)
@@ -119,6 +140,23 @@ namespace linghub.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            string resp = _checkDataRepository.checkUser(userCreate);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
+
+            if (userCreate.Admin != 0 && userCreate.Admin != null)
+            {
+                ModelState.AddModelError("", "You have no right to do it");
+                return StatusCode(422, ModelState);
+            }
 
             string passwordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(userCreate.UserPassword, 13);
             userCreate.UserPassword = passwordHash;
@@ -152,36 +190,47 @@ namespace linghub.Controllers
         public IActionResult UpdateUser(
             [FromForm] UserDto updatedUser)
         {
-            Console.WriteLine("1");
             bool isUpdateNeeded = false;
             if (updatedUser == null)
                 return BadRequest(ModelState);
-            Console.WriteLine("2");
+
             if (!_userRepository.isUserExist(updatedUser.IdUser))
                 return NotFound();
-            Console.WriteLine("3");
+
             if (updatedUser.IdUser != _userRepository.GetId(updatedUser.Email) && _userRepository.isUserExist(_userRepository.GetId(updatedUser.Email)))
                 return BadRequest(ModelState);
-            Console.WriteLine("4");
+
             if (!ModelState.IsValid)
             {
                 ModelState.AddModelError("", "Model state is not valid");
                 return BadRequest(ModelState);
             }
+
+            string resp = _checkDataRepository.checkUser(updatedUser);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
+
+            if (updatedUser.Admin > 2 && updatedUser.Admin < 0)
+            {
+                ModelState.AddModelError("", "there is no such isAdmin");
+                return StatusCode(422, ModelState);
+            }
+
             var user = _userRepository.GetUser(updatedUser.IdUser);
 
-            Console.WriteLine("5");
+            
             if (updatedUser.Name != user.Name)
             {
                 user.Name = updatedUser.Name;
                 isUpdateNeeded = true;
             }
 
-            Console.WriteLine("Updated users photo", updatedUser.Photo);
-
             if (updatedUser.Photo != null)
             {
-                Console.WriteLine("need to update photo");
                 user.Photo = updatedUser.Photo;
                 isUpdateNeeded = true;
             }
@@ -198,12 +247,9 @@ namespace linghub.Controllers
                 isUpdateNeeded = true;
             }
 
-            Console.WriteLine("updatedUser.Admin is " + updatedUser.Admin);
 
             if (updatedUser.Admin != user.Admin)
             {
-                Console.WriteLine("updatedUser.Admin is " + updatedUser.Admin);
-                Console.WriteLine("Updating rights");
                 user.Admin = updatedUser.Admin;
                 isUpdateNeeded = true;
             }
@@ -219,7 +265,6 @@ namespace linghub.Controllers
                 }
             }
 
-            Console.WriteLine("Is update needed" + isUpdateNeeded);
 
             if (isUpdateNeeded)
             {
@@ -229,7 +274,6 @@ namespace linghub.Controllers
                     ModelState.AddModelError("", "Something went wrong ");
                     return StatusCode(500, ModelState);
                 }
-                Console.WriteLine("UserAdmin is " + user.Admin);
             }
             return Ok("Successfully updated");
         }

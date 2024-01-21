@@ -20,6 +20,7 @@ builder.Services.AddScoped<ICalendarRepository, CalendarRepository>();
 builder.Services.AddScoped<IU_textRepository, UtextRepository>();
 builder.Services.AddScoped<IU_wordRepository, U_wordRepository>();
 builder.Services.AddScoped<IErrorRepository, ErrorRepository>();
+builder.Services.AddScoped<ICheckDataRepository, CheckDataRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

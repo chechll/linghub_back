@@ -13,12 +13,15 @@ namespace linghub.Controllers
     {
         private readonly IErrorRepository _errorRepository;
         private readonly IMapper _mapper;
+        private readonly ICheckDataRepository _checkDataRepository;
 
         public ErrorController( IErrorRepository errorRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ICheckDataRepository checkDataRepository)
         {
             _errorRepository = errorRepository;
             _mapper = mapper;
+            _checkDataRepository = checkDataRepository;
         }
 
         [HttpGet("GetAllErrors")]
@@ -56,6 +59,24 @@ namespace linghub.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!_checkDataRepository.IsValidEmail(errorCreate.Email))
+            {
+                ModelState.AddModelError("", "your mail is invalid");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!_checkDataRepository.CheckStringLengs(errorCreate.Email, 30))
+            {
+                ModelState.AddModelError("", "your mail length is more then 30");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!_checkDataRepository.IsEnglishSentence(errorCreate.Description) && !_checkDataRepository.IsUkranianSentence(errorCreate.Description))
+            {
+                ModelState.AddModelError("", "please write in english or ukranian and use only ,.!? symbols");
+                return StatusCode(422, ModelState);
+            }
 
             var errorMap = _mapper.Map<Error>(errorCreate);
 

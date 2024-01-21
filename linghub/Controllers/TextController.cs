@@ -14,16 +14,19 @@ namespace linghub.Controllers
         private readonly IU_textRepository _u_textRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly ICheckDataRepository _checkDataRepository;
 
         public TextController(ITextRepository textRepository,
             IU_textRepository u_textRepository,            
             IMapper mapper,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            ICheckDataRepository checkDataRepository)
         {
             _textRepository = textRepository;
             _u_textRepository = u_textRepository;
             _mapper = mapper;
             _userRepository = userRepository;
+            _checkDataRepository = checkDataRepository;
         }
 
         public class TextsAmountResponse
@@ -107,12 +110,20 @@ namespace linghub.Controllers
 
             if (text != null)
             {
-                ModelState.AddModelError("", "word already exists");
+                ModelState.AddModelError("", "text already exists");
                 return StatusCode(422, ModelState);
             }
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            string resp = _checkDataRepository.checkText(textCreate);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
 
             var textMap = _mapper.Map<Text>(textCreate);
 
@@ -130,20 +141,24 @@ namespace linghub.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateText(int textId,
-            [FromBody] TextDto updatedText)
+        public IActionResult UpdateText([FromForm] TextDto updatedText)
         {
             if (updatedText == null)
                 return BadRequest(ModelState);
 
-            if (textId != updatedText.IdText)
-                return BadRequest(ModelState);
-
-            if (!_textRepository.isTextExist(textId))
+            if (!_textRepository.isTextExist(updatedText.IdText))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest();
+
+            string resp = _checkDataRepository.checkText(updatedText);
+
+            if (resp != "Ok")
+            {
+                ModelState.AddModelError("", resp);
+                return StatusCode(422, ModelState);
+            }
 
             var textMap = _mapper.Map<Text>(updatedText);
 

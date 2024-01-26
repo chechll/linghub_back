@@ -184,6 +184,20 @@ namespace linghub.Controllers
                 return NotFound();
             }
 
+            var uWordsToDelete = _u_wordRepository.GetUwordsToDeleteByWordId(wordId).ToList();
+
+            if (uWordsToDelete != null && uWordsToDelete.Any())
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!_u_wordRepository.DeleteUWords(uWordsToDelete))
+                {
+                    ModelState.AddModelError("", "Something went wrong");
+                    return StatusCode(500, ModelState);
+                }
+            }
+
             var wordToDelete = _wordRepository.GetWord(wordId);
 
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using linghub.Dto;
 using linghub.Interfaces;
+using linghub.Models;
 using linghub.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -183,6 +184,21 @@ namespace linghub.Controllers
             }
 
             var textToDelete = _textRepository.GetText(textId);
+
+            var uTextsToDelete = _u_textRepository.GetUTextsToDeleteByTextId(textId).ToList();
+
+            if (uTextsToDelete != null && uTextsToDelete.Any())
+            {
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!_u_textRepository.DeleteUTexts(uTextsToDelete))
+                {
+                    ModelState.AddModelError("", "Something went wrong");
+                    return StatusCode(500, ModelState);
+                }
+            }
 
 
             if (!ModelState.IsValid)

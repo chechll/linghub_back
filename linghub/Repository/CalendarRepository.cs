@@ -39,23 +39,19 @@ namespace linghub.Repository
             try 
             {
                 var today = DateTime.Today;
-                var startOfWeek = today.AddDays((int)today.DayOfWeek - 6);
-                var endOfWeek = startOfWeek.AddDays(6);
+                var startOfWeek = today.AddDays(1 - (int)today.DayOfWeek );
 
-                Console.WriteLine($"Start of Week: {startOfWeek}");
-                Console.WriteLine($"End of Week: {endOfWeek}");
-                Console.WriteLine($"Today int is: {(int)today.DayOfWeek}");
-
-                var allDaysOfWeek = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>();
-
-                var appointmentsCountByDay = allDaysOfWeek
-                    .GroupJoin(
-                        _context.Calendars
-                            .Where(c => c.IdUser == idUser && c.Datum >= startOfWeek && c.Datum <= endOfWeek),
-                        dayOfWeek => dayOfWeek,
-                        appointment => appointment.Datum.DayOfWeek,
-                        (dayOfWeek, appointments) => appointments.Count())
-                    .ToList();
+               List<int> appointmentsCountByDay = new List<int>();
+                for (int i = 0; i <=6; i++)
+                {
+                   if( _context.Calendars.Any(p => p.IdUser == idUser && p.Datum == startOfWeek.AddDays(i)))
+                    {
+                        appointmentsCountByDay.Add(1);
+                    } else
+                    {
+                        appointmentsCountByDay.Add(0);
+                    }
+                }
 
                 return appointmentsCountByDay;
             }
